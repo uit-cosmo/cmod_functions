@@ -197,9 +197,8 @@ def get_phantom_frames(shot_number: int):
 
     number_of_frames = frames.shape[0]
     stop_time = start_time + number_of_frames / frame_rate
-    step = 1 / frame_rate
 
-    times = np.arange(start=start_time, stop=stop_time-step, step=step)
+    times = np.linspace(start=start_time, stop=stop_time, num=number_of_frames)
 
     return times, frames
 
