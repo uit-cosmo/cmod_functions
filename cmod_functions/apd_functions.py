@@ -114,7 +114,7 @@ def generate_raw_apd_dataset(
 def _create_apd_signal_array(frames, moving_window, subtract_background):
     """
     Creates an APD signal array from the raw APD frames.
-    This contains all the data from the diode pixels and may contain time series from dead pixels.
+    This contains all the data from the diode pixels. Dead pixels are replaced with nans.
 
     Args:
         frames: Raw frames extracted for all pixels.
@@ -138,6 +138,10 @@ def _create_apd_signal_array(frames, moving_window, subtract_background):
 
     for i in range(len(apd_pixel_list)):
         raw_signal = frames[:, apd_pixel_list[i][0], apd_pixel_list[i][1]]
+
+        # Criterion to find dead pixels
+        if raw_signal.std() < 0.01:
+            raw_signal[:] = np.nan
 
         if subtract_background:
             offset = np.mean(raw_signal[:200])
