@@ -267,47 +267,18 @@ def generate_phantom_dataset(
     R = np.flip(R, axis=1)
     Z = np.flip(Z, axis=1)
 
+    # Not all shots provide R and Z data (I removed try/catch as it was bad for debugging)
     return xr.Dataset(
         {"frames": (["time", "y", "x"], frames),
          "rlimit": rlimit,
          "zlimit": zlimit,
-         "rlcfs": (["a", "b"], rlcfs),
-         "zlcfs": (["a", "b"], zlcfs),
-         "efit_time": efit_time},
+         "rlcfs": (["x", "efit_time"], rlcfs),
+         "zlcfs": (["y", "efit_time"], zlcfs)},
         coords={
             "R": (["y", "x"], R),
             "Z": (["y", "x"], Z),
             "time": (["time"], time),
+            "efit_time": (["efit_time"], efit_time)
         },
         attrs=dict(shot_number=shot_number),
     )
-
-    # Not all shots provide R and Z data
-    try:
-        R, Z = get_major_radius_phantom_coordinates(shot_number)
-        R = np.flip(R, axis=1)
-        Z = np.flip(Z, axis=1)
-
-        return xr.Dataset(
-            {"frames": (["time", "y", "x"], frames),
-             "rlimit": rlimit,
-             "zlimit": zlimit,
-             "rlcfs": rlcfs,
-             "zlcfs": zlcfs,
-             "efit_time": efit_time},
-            coords={
-                "R": (["y", "x"], R),
-                "Z": (["y", "x"], Z),
-                "time": (["time"], time),
-            },
-            attrs=dict(shot_number=shot_number),
-        )
-
-    except Exception:
-        print(f"No R and Z data available for shot {shot_number}")
-
-        return xr.Dataset(
-            {"frames": (["time", "y", "x"], frames)},
-            coords={"time": (["time"], time)},
-            attrs=dict(shot_number=shot_number),
-        )
