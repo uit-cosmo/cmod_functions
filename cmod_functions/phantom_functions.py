@@ -271,8 +271,8 @@ def generate_phantom_dataset(
         {"frames": (["time", "y", "x"], frames),
          "rlimit": rlimit,
          "zlimit": zlimit,
-         "rlcfs": rlcfs,
-         "zlcfs": zlcfs,
+         "rlcfs": (["a", "b"], rlcfs),
+         "zlcfs": (["a", "b"], zlcfs),
          "efit_time": efit_time},
         coords={
             "R": (["y", "x"], R),
