@@ -260,7 +260,8 @@ def generate_phantom_dataset(
     if filter is not None:
         frames = _normalize_frames(frames, shot_number, filter)
 
-    R_limiter, Z_limiter = get_limiter_coordinates(shot_number)
+    rlimit, zlimit = get_limiter_coordinates(shot_number)
+    rlcfs, zlcfs, _, efit_time = get_separatrix_coordinates(self.shot_number)
 
     # Not all shots provide R and Z data
     try:
@@ -270,8 +271,11 @@ def generate_phantom_dataset(
 
         return xr.Dataset(
             {"frames": (["time", "y", "x"], frames),
-             "rlimit": R_limiter,
-             "zlimit": Z_limiter},
+             "rlimit": rlimit,
+             "zlimit": zlimit,
+             "rlcfs": rlcfs,
+             "zlcfs": zlcfs,
+             "efit_time": efit_time},
             coords={
                 "R": (["y", "x"], R),
                 "Z": (["y", "x"], Z),
