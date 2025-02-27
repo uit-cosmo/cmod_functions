@@ -263,6 +263,25 @@ def generate_phantom_dataset(
     rlimit, zlimit = get_limiter_coordinates(shot_number)
     rlcfs, zlcfs, _, efit_time = get_separatrix_coordinates(shot_number)
 
+    R, Z = get_major_radius_phantom_coordinates(shot_number)
+    R = np.flip(R, axis=1)
+    Z = np.flip(Z, axis=1)
+
+    return xr.Dataset(
+        {"frames": (["time", "y", "x"], frames),
+         "rlimit": rlimit,
+         "zlimit": zlimit,
+         "rlcfs": rlcfs,
+         "zlcfs": zlcfs,
+         "efit_time": efit_time},
+        coords={
+            "R": (["y", "x"], R),
+            "Z": (["y", "x"], Z),
+            "time": (["time"], time),
+        },
+        attrs=dict(shot_number=shot_number),
+    )
+
     # Not all shots provide R and Z data
     try:
         R, Z = get_major_radius_phantom_coordinates(shot_number)
