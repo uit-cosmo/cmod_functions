@@ -261,7 +261,7 @@ def generate_phantom_dataset(
         frames = _normalize_frames(frames, shot_number, filter)
 
     rlimit, zlimit = get_limiter_coordinates(shot_number)
-    rlcfs, zlcfs, _, efit_time = get_separatrix_coordinates(self.shot_number)
+    rlcfs, zlcfs, _, efit_time = get_separatrix_coordinates(shot_number)
 
     # Not all shots provide R and Z data
     try:
