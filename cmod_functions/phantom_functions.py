@@ -270,10 +270,10 @@ def generate_phantom_dataset(
     # Not all shots provide R and Z data (I removed try/catch as it was bad for debugging)
     return xr.Dataset(
         {"frames": (["time", "y", "x"], frames),
-         "rlimit": rlimit,
-         "zlimit": zlimit,
-         "rlcfs": (["xlcfs", "efit_time"], rlcfs),
-         "zlcfs": (["ylcfs", "efit_time"], zlcfs)},
+         "rlimit": rlimit*100,
+         "zlimit": zlimit*100,
+         "rlcfs": (["xlcfs", "efit_time"], rlcfs*100),
+         "zlcfs": (["ylcfs", "efit_time"], zlcfs*100)},
         coords={
             "R": (["y", "x"], R),
             "Z": (["y", "x"], Z),
