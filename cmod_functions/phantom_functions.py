@@ -260,7 +260,7 @@ def generate_phantom_dataset(
     if filter is not None:
         frames = _normalize_frames(frames, shot_number, filter)
 
-    R_limiter, Z_limiter = get_limiter_coordinates(self.shot_number)
+    R_limiter, Z_limiter = get_limiter_coordinates(shot_number)
 
     # Not all shots provide R and Z data
     try:
