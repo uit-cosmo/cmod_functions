@@ -260,6 +260,8 @@ def generate_phantom_dataset(
     if filter is not None:
         frames = _normalize_frames(frames, shot_number, filter)
 
+    R_limiter, Z_limiter = get_limiter_coordinates(self.shot_number)
+
     # Not all shots provide R and Z data
     try:
         R, Z = get_major_radius_phantom_coordinates(shot_number)
@@ -267,7 +269,9 @@ def generate_phantom_dataset(
         Z = np.flip(Z, axis=1)
 
         return xr.Dataset(
-            {"frames": (["time", "y", "x"], frames)},
+            {"frames": (["time", "y", "x"], frames),
+             "rlimit": R_limiter,
+             "zlimit": Z_limiter},
             coords={
                 "R": (["y", "x"], R),
                 "Z": (["y", "x"], Z),
