@@ -4,7 +4,7 @@ import xarray as xr
 from scipy import interpolate
 from typing import Union
 import matplotlib.pyplot as plt
-from base_functions import *
+from .base_functions import *
 
 
 @xr.register_dataset_accessor("phantom")

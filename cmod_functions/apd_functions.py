@@ -1,7 +1,7 @@
 import MDSplus as mds
 import numpy as np
 import xarray as xr
-from base_functions import *
+from .base_functions import *
 
 
 def get_major_radius_coordinates(shot_number: int):
