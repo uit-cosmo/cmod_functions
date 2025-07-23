@@ -1,6 +1,7 @@
 import MDSplus as mds
 import numpy as np
 import xarray as xr
+from base_functions import *
 
 
 def get_major_radius_coordinates(shot_number: int):
@@ -108,7 +109,7 @@ def generate_raw_apd_dataset(
     apd_signal_array = _create_apd_signal_array(
         frames, moving_window, subtract_background
     )
-    return _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z)
+    return _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z, shot_number)
 
 
 def _create_apd_signal_array(frames, moving_window, subtract_background):
@@ -153,7 +154,7 @@ def _create_apd_signal_array(frames, moving_window, subtract_background):
     return apd_signal_array
 
 
-def _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z):
+def _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z, shot_number):
     """
     Creates an xarray dataset from the raw APD signal array.
 
@@ -179,14 +180,27 @@ def _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z):
     frames = frames[:, :, time_interval]
     time = time[time_interval]
 
+    rlimit, zlimit = get_limiter_coordinates(shot_number)
+    rlcfs, zlcfs, _, efit_time = get_separatrix_coordinates(shot_number)
+
     # flip along x so that x=0 refers to the lowest R value
     frames = np.flip(frames, axis=1)
     R = np.flip(R, axis=1)
     Z = np.flip(Z, axis=1)
 
     return xr.Dataset(
-        {"frames": (["y", "x", "time"], frames)},
-        coords={"R": (["y", "x"], R), "Z": (["y", "x"], Z), "time": (["time"], time)},
+        {"frames": (["y", "x", "time"], frames),
+         "rlimit": rlimit*100,
+         "zlimit": zlimit*100,
+         "rlcfs": (["xlcfs", "efit_time"], rlcfs*100),
+         "zlcfs": (["ylcfs", "efit_time"], zlcfs*100)},
+        coords={
+            "R": (["y", "x"], R),
+            "Z": (["y", "x"], Z),
+            "time": (["time"], time),
+            "efit_time": (["efit_time"], efit_time)
+        },
+        attrs=dict(shot_number=shot_number),
     )
 
 
