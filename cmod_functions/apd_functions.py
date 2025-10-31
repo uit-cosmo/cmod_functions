@@ -98,48 +98,17 @@ def generate_raw_apd_dataset(
 
     R, Z = get_major_radius_coordinates(shot_number)
 
-    # apd_signal_array = _create_apd_signal_array(frames)
-    apd_signal_array = np.transpose(frames[:, 0:10, 0:9], axes=(1, 2, 0))
+    # Add a minus sign to the data
+    apd_signal_array = -np.transpose(frames[:, 0:10, 0:9], axes=(1, 2, 0))
     return _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z, shot_number)
 
 
-def _create_apd_signal_array(frames):
-    """
-    Creates an APD signal array from the raw APD frames.
-    This contains all the data from the diode pixels.
-
-    Args:
-        frames: Raw frames extracted for all pixels.
-
-    Returns:
-        apd_signal_array: An APD signal array from the raw APD frames.
-    """
-
-    apd_pixel_list = np.zeros((90, 2))
-    for i in range(90):
-        apd_pixel_list[i] = (i % 10, int(i / 10))
-
-    apd_pixel_list = apd_pixel_list.astype(int).tolist()
-    pixel_array_length = len(apd_pixel_list)
-
-    apd_signal_array = np.zeros(
-        (pixel_array_length, frames[:, 0, 0].size)
-    )
-
-    for i in range(len(apd_pixel_list)):
-        apd_signal_array[i, :] = frames[:, apd_pixel_list[i][0], apd_pixel_list[i][1]]
-
-
-    apd_signal_array_out = np.swapaxes(np.reshape(apd_signal_array, (9, 10, frames[:, 0, 0].size)), 0, 1)
-    return apd_signal_array_out
-
-
-def _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z, shot_number):
+def _create_xr_dataset(frames, time, time_start, time_end, R, Z, shot_number):
     """
     Creates an xarray dataset from the raw APD signal array.
 
     Args:
-        apd_signal_array: Raw APD signal array.
+        frames: Raw APD signal array.
         time: Time array in seconds.
         time_start: The beginning of the time window in seconds. Set to first frame by default.
         time_end: The end of the time window in seconds. Set to last frame by default.
@@ -153,10 +122,6 @@ def _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z, shot_
             R: Major radius coordinates in centimetres.
             Z: Height array (above the machine midplane) in centimetres.
     """
-
-    # frames = np.swapaxes(np.reshape(apd_signal_array, (9, 10, len(time))), 0, 1)
-    frames = apd_signal_array
-
     time_interval = (time > time_start) & (time < time_end)
     frames = frames[:, :, time_interval]
     time = time[time_interval]
