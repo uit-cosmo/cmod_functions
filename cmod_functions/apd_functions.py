@@ -98,28 +98,20 @@ def generate_raw_apd_dataset(
     # Convert time from 100 nanosecond units to seconds
     time = time * 1e-7
 
-    # Each pixel may not have the same time dimension as each other.
-    # Chop one window size on both ends
-    moving_window = 4196  # Equivalent to 2ms of data
-    time = time[2 * moving_window : -2 * moving_window]
-
     R, Z = get_major_radius_coordinates(shot_number)
 
-    apd_signal_array = _create_apd_signal_array(
-        frames, moving_window, subtract_background
-    )
+    # apd_signal_array = _create_apd_signal_array(frames)
+    apd_signal_array = np.transpose(frames[:, 0:10, 0:9], axes=(1, 2, 0))
     return _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z)
 
 
-def _create_apd_signal_array(frames, moving_window, subtract_background):
+def _create_apd_signal_array(frames):
     """
     Creates an APD signal array from the raw APD frames.
-    This contains all the data from the diode pixels. Dead pixels are replaced with nans.
+    This contains all the data from the diode pixels.
 
     Args:
         frames: Raw frames extracted for all pixels.
-        moving_window: The size of the moving window.
-        subtract_background: Option to subtract low light levels which will return an inverted signal.
 
     Returns:
         apd_signal_array: An APD signal array from the raw APD frames.
@@ -133,24 +125,15 @@ def _create_apd_signal_array(frames, moving_window, subtract_background):
     pixel_array_length = len(apd_pixel_list)
 
     apd_signal_array = np.zeros(
-        (pixel_array_length, frames[2 * moving_window : -2 * moving_window, 0, 0].size)
+        (pixel_array_length, frames[:, 0, 0].size)
     )
 
     for i in range(len(apd_pixel_list)):
-        raw_signal = frames[:, apd_pixel_list[i][0], apd_pixel_list[i][1]]
+        apd_signal_array[i, :] = frames[:, apd_pixel_list[i][0], apd_pixel_list[i][1]]
 
-        # Criterion to find dead pixels
-        if raw_signal.std() < 0.01:
-            raw_signal[:] = np.nan
 
-        if subtract_background:
-            offset = np.mean(raw_signal[:200])
-            raw_signal = offset - raw_signal[:]
-
-        time_series = raw_signal[2 * moving_window : -2 * moving_window]
-        apd_signal_array[i, :] = time_series[:]
-
-    return apd_signal_array
+    apd_signal_array_out = np.swapaxes(np.reshape(apd_signal_array, (9, 10, frames[:, 0, 0].size)), 0, 1)
+    return apd_signal_array_out
 
 
 def _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z):
