@@ -154,7 +154,8 @@ def _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z, shot_
             Z: Height array (above the machine midplane) in centimetres.
     """
 
-    frames = np.swapaxes(np.reshape(apd_signal_array, (9, 10, len(time))), 0, 1)
+    # frames = np.swapaxes(np.reshape(apd_signal_array, (9, 10, len(time))), 0, 1)
+    frames = apd_signal_array
 
     time_interval = (time > time_start) & (time < time_end)
     frames = frames[:, :, time_interval]
