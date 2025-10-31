@@ -100,7 +100,7 @@ def generate_raw_apd_dataset(
 
     # apd_signal_array = _create_apd_signal_array(frames)
     apd_signal_array = np.transpose(frames[:, 0:10, 0:9], axes=(1, 2, 0))
-    return _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z)
+    return _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z, shot_number)
 
 
 def _create_apd_signal_array(frames):
