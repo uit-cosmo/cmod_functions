@@ -15,6 +15,23 @@ def get_rail_signal(
     time_start=-np.inf,
     time_end=np.inf,
 ):
+    """
+    TODO: Need to figure our the variable names
+    :param shot_number: Shot number
+    :param variable_name:
+    :param tile: Integer from 1 to 7
+    :param probe_pin_number: Probe pin number from 0 to 2
+    Args:
+        shot_number:
+        variable_name:
+        tile:
+        probe_pin_number:
+        time_start:
+        time_end:
+
+    Returns:
+
+    """
 
     c = mds.Connection("alcdata")
     c.openTree("edge", shot_number)

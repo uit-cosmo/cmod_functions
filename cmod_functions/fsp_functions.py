@@ -1,5 +1,6 @@
 import MDSplus as mds
 import numpy as np
+import xarray as xr
 
 """
 Abbreviations:
@@ -140,3 +141,79 @@ def get_raw_fsp_data(
 
     time_interval = (fsp_time > time_start) & (fsp_time < time_end)
     return fsp_time[time_interval], fsp_data[time_interval]
+
+
+def get_fsp_dataset(shot_number: int):
+    """
+    Comprehensive data retrieval function for FSP (F-port Scanning Probe) datasets.
+
+    Args:
+        shot_number (int): Shot number for data retrieval
+
+    Returns:
+        xr.Dataset: Consolidated dataset with probe measurements and metadata
+    """
+    # Probe variables to extract
+    variables = list(variables_dictionary_fsp.keys())
+    pins = [0, 1, 2, 3]
+
+    # Prepare storage for data
+    data_vars = {}
+    coords = {}
+
+    # Retrieve probe origin
+    try:
+        probe_origin = get_fsp_probe_origin(shot_number)
+    except Exception as e:
+        print(f"Warning: Could not retrieve probe origin: {e}")
+        probe_origin = None
+
+    # Retrieve plunge depth
+    try:
+        plunge_time, plunge_depth = get_fsp_plunge_depth(shot_number)
+    except Exception as e:
+        print(f"Warning: Could not retrieve plunge depth: {e}")
+        plunge_time = None
+        plunge_depth = None
+
+    # Collect FSP data for all pins and variables
+    data_dict = {}
+    coord_dict = {}
+    for variable in variables:
+        for pin in pins:
+            try:
+                rho_time, rho = get_fsp_rho(shot_number, pin)
+                time, data = get_raw_fsp_data(shot_number, pin, variable)
+
+                data_dict[f"{variable}_{pin}"] = (f"time_{variable}_{pin}", data)
+                data_dict[f"rho_{variable}_{pin}"] = (f"rho_time_{variable}_{pin}", rho)
+
+                coord_dict[f"time_{variable}_{pin}"] = time
+                coord_dict[f"rho_time_{variable}_{pin}"] = rho_time
+
+            except Exception as e:
+                print(
+                    f"Warning: Could not retrieve data for pin {pin}, variable {variable}: {e}"
+                )
+                continue
+
+    for key, value in data_dict.items():
+        data_vars[key] = value
+
+    for key, value in coord_dict.items():
+        coords[key] = value
+
+    # Create xarray Dataset
+    dataset = xr.Dataset(
+        data_vars=data_vars,
+        coords=coords,
+        attrs={
+            "shot_number": shot_number,
+            "probe_origin": probe_origin,
+            "plunge_time": plunge_time,
+            "plunge_depth": plunge_depth,
+            "probe_type": "F-port Scanning Probe (FSP)",
+        },
+    )
+
+    return dataset
