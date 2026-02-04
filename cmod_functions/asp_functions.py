@@ -377,26 +377,19 @@ def get_asp_dataset(shot_number: int):
         plunge_depth = None
 
     # Collect MLP data for all pins and variables
+    data_dict = {}
+    coord_dict = {}
     for variable in variables:
-        # Create a dictionary to store times and data for each pin
-        pin_data_dict = {}
-        pin_rho_dict = {}
-
         for pin in pins:
             try:
-                # Retrieve rho for the pin
                 rho_time, rho = get_asp_mlp_rho(shot_number, pin)
-
-                # Retrieve raw data for the variable and pin
                 time, data = get_raw_asp_mlp_data(shot_number, pin, variable)
 
-                # Store data with its original time base
-                pin_data_dict[f"pin_{pin}"] = (f"time_pin_{pin}", data)
-                pin_data_dict[f"time_pin_{pin}"] = (f"time_pin_{pin}", time)
+                data_dict[f"{variable}_{pin}"] = (f"time_{variable}_{pin}", data)
+                data_dict[f"rho_{variable}_{pin}"] = (f"rho_time_{variable}_{pin}", rho)
 
-                # Store rho information
-                pin_rho_dict[f"rho_pin_{pin}"] = rho
-                pin_rho_dict[f"rho_time_pin_{pin}"] = rho_time
+                coord_dict[f"time_{variable}_{pin}"] = time
+                coord_dict[f"rho_time_{variable}_{pin}"] = rho_time
 
             except Exception as e:
                 print(
@@ -404,13 +397,11 @@ def get_asp_dataset(shot_number: int):
                 )
                 continue
 
-        # Add data variables and coordinates to the dataset
-        for key, value in pin_data_dict.items():
-            data_vars[key] = value
+    for key, value in data_dict.items():
+        data_vars[key] = value
 
-        # Add rho information as coordinates
-        for key, value in pin_rho_dict.items():
-            coords[key] = value
+    for key, value in coord_dict.items():
+        coords[key] = value
 
     # Create xarray Dataset
     dataset = xr.Dataset(
