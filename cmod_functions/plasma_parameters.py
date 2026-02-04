@@ -106,6 +106,7 @@ def get_toroidal_magnetic_field(shot_number):
 
     return toroidal_magnetic_field_time, toroidal_magnetic_field
 
+
 def get_q95(shot_number):
     """
     Extract the safety factor, q at 95% flux surface. This is called q95.
@@ -124,9 +125,7 @@ def get_q95(shot_number):
     q95_dataname = "\ANALYSIS::EFIT_AEQDSK:QPSIB"
 
     q95 = c.get(q95_dataname).data()
-    q95_time = c.get(
-        f"dim_of({q95_dataname})"
-    ).data()
+    q95_time = c.get(f"dim_of({q95_dataname})").data()
 
     return q95_time, q95
 
@@ -150,14 +149,12 @@ def get_kappa(shot_number):
     kappa_dataname = "\ANALYSIS::EFIT_AEQDSK:EOUT"
 
     kappa = c.get(kappa_dataname).data()
-    kappa_time = c.get(
-        f"dim_of({kappa_dataname})"
-    ).data()
+    kappa_time = c.get(f"dim_of({kappa_dataname})").data()
 
     return kappa_time, kappa
 
 
-def get_delta(shot_number,type):
+def get_delta(shot_number, type):
     """
     Extract the traingularity at plasma boundary
 
@@ -175,20 +172,16 @@ def get_delta(shot_number,type):
     c = mds.Connection("alcdata")
     c.openTree("analysis", shot_number)
 
-    if type=="upper":
+    if type == "upper":
 
         delta_dataname = "\ANALYSIS::EFIT_AEQDSK:DOUTU"
         delta = c.get(delta_dataname).data()
-        delta_time = c.get(
-            f"dim_of({delta_dataname})"
-        ).data()
+        delta_time = c.get(f"dim_of({delta_dataname})").data()
     elif type == "lower":
-        
+
         delta_dataname = "\ANALYSIS::EFIT_AEQDSK:DOUTL"
         delta = c.get(delta_dataname).data()
-        delta_time = c.get(
-            f"dim_of({delta_dataname})"
-        ).data()
+        delta_time = c.get(f"dim_of({delta_dataname})").data()
     elif type == "average":
 
         delta_upper_dataname = "\ANALYSIS::EFIT_AEQDSK:DOUTU"
@@ -198,9 +191,7 @@ def get_delta(shot_number,type):
         delta_lower = c.get(delta_lower_dataname).data()
 
         delta = (delta_upper + delta_lower) / 2
-        delta_time = c.get(
-            f"dim_of({delta_upper_dataname})"
-        ).data()
+        delta_time = c.get(f"dim_of({delta_upper_dataname})").data()
 
     return delta_time, delta
 
@@ -223,9 +214,7 @@ def get_plasma_area(shot_number):
     area_dataname = "\ANALYSIS::EFIT_AEQDSK:AREA"
 
     area = c.get(area_dataname).data()
-    area_time = c.get(
-        f"dim_of({area_dataname})"
-    ).data()
+    area_time = c.get(f"dim_of({area_dataname})").data()
 
     return area_time, area
 
@@ -248,9 +237,7 @@ def get_plasma_volume(shot_number):
     volume_dataname = "\ANALYSIS::EFIT_AEQDSK:VOLUME"
 
     volume = c.get(volume_dataname).data()
-    volume_time = c.get(
-        f"dim_of({volume_dataname})"
-    ).data()
+    volume_time = c.get(f"dim_of({volume_dataname})").data()
 
     return volume_time, volume
 
@@ -273,9 +260,7 @@ def get_plasma_stored_energy(shot_number):
     wplasma_dataname = "\ANALYSIS::EFIT_AEQDSK:WPLASM"
 
     wplasma = c.get(wplasma_dataname).data()
-    wplasma_time = c.get(
-        f"dim_of({wplasma_dataname})"
-    ).data()
+    wplasma_time = c.get(f"dim_of({wplasma_dataname})").data()
 
     return wplasma_time, wplasma
 

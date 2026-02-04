@@ -100,7 +100,9 @@ def generate_raw_apd_dataset(
 
     # Add a minus sign to the data
     apd_signal_array = -np.transpose(frames[:, 0:10, 0:9], axes=(1, 2, 0))
-    return _create_xr_dataset(apd_signal_array, time, time_start, time_end, R, Z, shot_number)
+    return _create_xr_dataset(
+        apd_signal_array, time, time_start, time_end, R, Z, shot_number
+    )
 
 
 def _create_xr_dataset(frames, time, time_start, time_end, R, Z, shot_number):
@@ -135,16 +137,18 @@ def _create_xr_dataset(frames, time, time_start, time_end, R, Z, shot_number):
     Z = np.flip(Z, axis=1)
 
     return xr.Dataset(
-        {"frames": (["y", "x", "time"], frames),
-         "rlimit": rlimit*100,
-         "zlimit": zlimit*100,
-         "rlcfs": (["xlcfs", "efit_time"], rlcfs*100),
-         "zlcfs": (["ylcfs", "efit_time"], zlcfs*100)},
+        {
+            "frames": (["y", "x", "time"], frames),
+            "rlimit": rlimit * 100,
+            "zlimit": zlimit * 100,
+            "rlcfs": (["xlcfs", "efit_time"], rlcfs * 100),
+            "zlcfs": (["ylcfs", "efit_time"], zlcfs * 100),
+        },
         coords={
             "R": (["y", "x"], R),
             "Z": (["y", "x"], Z),
             "time": (["time"], time),
-            "efit_time": (["efit_time"], efit_time)
+            "efit_time": (["efit_time"], efit_time),
         },
         attrs=dict(shot_number=shot_number),
     )
@@ -268,6 +272,8 @@ def major_radius_to_average_rho(
     )
 
     rho_mean = np.mean(rho_array, axis=1)
-    rho_time_averaged = np.flip(np.swapaxes(np.reshape(rho_mean, (9, 10)), 0, 1), axis=1)
+    rho_time_averaged = np.flip(
+        np.swapaxes(np.reshape(rho_mean, (9, 10)), 0, 1), axis=1
+    )
 
     return R, Z, rho_time_averaged

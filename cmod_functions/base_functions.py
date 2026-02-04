@@ -42,10 +42,10 @@ def get_separatrix_coordinates(shot_number: int):
 
 
 def calculate_splinted_LCFS(
-        time_step: float,
-        efit_time: np.ndarray,
-        rbbbs: np.ndarray,
-        zbbbs: np.ndarray,
+    time_step: float,
+    efit_time: np.ndarray,
+    rbbbs: np.ndarray,
+    zbbbs: np.ndarray,
 ):
     rbbbs = np.array(rbbbs)
     zbbbs = np.array(zbbbs)

@@ -1,5 +1,6 @@
 import MDSplus as mds
 import numpy as np
+import xarray as xr
 
 """
 Abbreviations:
@@ -340,3 +341,88 @@ def generate_average_mlp_data(shot_number: int, variable_name: str):
         time_common,
         time_series_average,
     )
+
+
+def get_asp_dataset(shot_number: int):
+    """
+    Comprehensive data retrieval function for ASP MLP (Mirror Langmuir Probe) datasets.
+
+    Args:
+        shot_number (int): Shot number for data retrieval
+
+    Returns:
+        xr.Dataset: Consolidated dataset with probe measurements and metadata
+    """
+    # Probe variables to extract
+    variables = list(variables_dictionary_asp_mlp.keys())
+    pins = [0, 1, 2, 3]
+
+    # Prepare storage for data
+    data_vars = {}
+    coords = {}
+
+    # Retrieve probe origin
+    try:
+        probe_origin = get_probe_origin(shot_number)
+    except Exception as e:
+        print(f"Warning: Could not retrieve probe origin: {e}")
+        probe_origin = None
+
+    # Retrieve plunge depth
+    try:
+        plunge_time, plunge_depth = get_plunge_depth(shot_number)
+    except Exception as e:
+        print(f"Warning: Could not retrieve plunge depth: {e}")
+        plunge_time = None
+        plunge_depth = None
+
+    # Collect MLP data for all pins and variables
+    for variable in variables:
+        # Create a dictionary to store times and data for each pin
+        pin_data_dict = {}
+        pin_rho_dict = {}
+
+        for pin in pins:
+            try:
+                # Retrieve rho for the pin
+                rho_time, rho = get_asp_mlp_rho(shot_number, pin)
+
+                # Retrieve raw data for the variable and pin
+                time, data = get_raw_asp_mlp_data(shot_number, pin, variable)
+
+                # Store data with its original time base
+                pin_data_dict[f"pin_{pin}"] = (f"time_pin_{pin}", data)
+                pin_data_dict[f"time_pin_{pin}"] = (f"time_pin_{pin}", time)
+
+                # Store rho information
+                pin_rho_dict[f"rho_pin_{pin}"] = rho
+                pin_rho_dict[f"rho_time_pin_{pin}"] = rho_time
+
+            except Exception as e:
+                print(
+                    f"Warning: Could not retrieve data for pin {pin}, variable {variable}: {e}"
+                )
+                continue
+
+        # Add data variables and coordinates to the dataset
+        for key, value in pin_data_dict.items():
+            data_vars[key] = value
+
+        # Add rho information as coordinates
+        for key, value in pin_rho_dict.items():
+            coords[key] = value
+
+    # Create xarray Dataset
+    dataset = xr.Dataset(
+        data_vars=data_vars,
+        coords=coords,
+        attrs={
+            "shot_number": shot_number,
+            "probe_origin": probe_origin,
+            "plunge_time": plunge_time,
+            "plunge_depth": plunge_depth,
+            "probe_type": "Mirror Langmuir Probe (MLP)",
+        },
+    )
+
+    return dataset
