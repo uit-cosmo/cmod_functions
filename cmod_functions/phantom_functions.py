@@ -28,7 +28,7 @@ class PhantomAccessor:
         CS = plt.contourf(
             self._obj.R / 100,
             self._obj.Z / 100,
-            self._obj.frames.isel(time=time_index).values[:, ::-1],
+            self._obj.frames.isel(time=time_index).values,
             64,
         )
         plt.colorbar(CS)
@@ -187,9 +187,8 @@ def generate_phantom_dataset(
     rlimit, zlimit = get_limiter_coordinates(shot_number)
     rlcfs, zlcfs, _, efit_time = get_separatrix_coordinates(shot_number)
 
+    # R_ARR and Z_ARR already have x=0 at the lowest R; only the frames are stored the other way round.
     R, Z = get_major_radius_phantom_coordinates(shot_number)
-    R = np.flip(R, axis=1)
-    Z = np.flip(Z, axis=1)
 
     # Not all shots provide R and Z data (I removed try/catch as it was bad for debugging)
     return xr.Dataset(
